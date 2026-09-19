@@ -11,7 +11,7 @@ export default function LandingPage() {
           <h2>Mera Video Call</h2>
         </div>
         <div className="navlist">
-          <p
+          <p className="hov"
             onClick={() => {
               router("/aljk23");
             }}
@@ -19,7 +19,7 @@ export default function LandingPage() {
             Join as Guest
           </p>
 
-          <p
+          <p className="hov"
             onClick={() => {
               router("/auth");
             }}
@@ -32,7 +32,7 @@ export default function LandingPage() {
             }}
             role="button"
           >
-            <p>Login</p>
+            <p className="hov">Login</p>
           </div>
         </div>
       </nav>
