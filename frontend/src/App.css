@@ -23,9 +23,16 @@
 
 .landingPageContainer nav .navlist {
   display: flex;
-  gap: 1.6rem;
+  gap: 2rem;
   cursor: pointer;
 
+}
+
+.hov:hover{
+  box-sizing: border-box;
+  background-color: #da7b0f;
+  padding: 6px;
+  border-radius: 20px;
 }
 
 .landingMainContainer {
