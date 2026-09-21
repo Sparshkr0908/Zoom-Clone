@@ -2,8 +2,7 @@ import httpStatus from "http-status";
 import {User} from "../Models/User.model.js";
 import bcrypt, {hash} from "bcrypt"; 
 import crypto from "crypto";
-import { Meeting } from "../models/meeting.model.js";
-
+import { Meeting } from "../Models/Meeting.model.js";
 
 const login = async(req, res)=>{
     const {username, password} = req.body;
@@ -17,12 +16,17 @@ const login = async(req, res)=>{
             return res.status(httpStatus.NOT_FOUND).json({message:"User not Found"})
         }
 
-        if(bcrypt.compare(password, user.password)){
+        let isPasswordCorrect = await bcrypt.compare(password, user.password)
+
+        if(isPasswordCorrect){
             let token = crypto.randomBytes(20).toString("hex");
 
             user.token = token;
             await user.save();
             return res.status(httpStatus.OK).json({token:token})
+        }
+         else {
+            return res.status(httpStatus.UNAUTHORIZED).json({ message: "Invalid Username or password" })
         }
     }
     catch (e){
