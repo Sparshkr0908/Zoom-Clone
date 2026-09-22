@@ -4,6 +4,7 @@ import "./App.css";
 import LandingPage from "./pages/landing";
 import Authentication from "./pages/authentication";
 import { AuthProvider } from "./contexts/AuthContext";
+import VideoMeeting from "./pages/VideoMeet";
 
 function App(){
     return(
@@ -13,6 +14,7 @@ function App(){
                     <Routes>
                         <Route  path = '/' element = {<LandingPage/>}/>
                         <Route path="/auth" element = {<Authentication/>}/>
+                        <Route path = "/:url" element = {<VideoMeeting/>}/>
                     </Routes>
                 </AuthProvider>
             </Router>
