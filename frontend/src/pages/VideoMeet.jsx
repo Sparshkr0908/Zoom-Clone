@@ -1,6 +1,7 @@
 import React, { useRef, useState,useEffect } from "react";
 import { Badge, IconButton, TextField } from '@mui/material';
 import { Button } from '@mui/material';
+import io from "socket.io-client";
 
 const server_url = "https://localhost:5501";
 
@@ -108,6 +109,27 @@ export default function VideoMeeting() {
         }
     }
 
+    let gotMessageFromServer = (fromId, message) => {
+        var signal = JSON.parse(message)
+
+        if (fromId !== socketIdRef.current) {
+            if (signal.sdp) {
+                connections[fromId].setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(() => {
+                    if (signal.sdp.type === 'offer') {
+                        connections[fromId].createAnswer().then((description) => {
+                            connections[fromId].setLocalDescription(description).then(() => {
+                                socketRef.current.emit('signal', fromId, JSON.stringify({ 'sdp': connections[fromId].localDescription }))
+                            }).catch(e => console.log(e))
+                        }).catch(e => console.log(e))
+                    }
+                }).catch(e => console.log(e))
+            }
+
+            if (signal.ice) {
+                connections[fromId].addIceCandidate(new RTCIceCandidate(signal.ice)).catch(e => console.log(e))
+            }
+        }
+    }
 
     let connectToSocketServer = () => {
         socketRef.current = io.connect(server_url, { secure: false })
@@ -212,7 +234,7 @@ export default function VideoMeeting() {
 
     return (
         <div>
-            {askForUsername === true ? 
+            {/*{askForUsername === true ?*/}
                 <div>
                     <h2>Enter into Lobby </h2>
                     <TextField id="outlined-basic" label="Username" value={username} onChange={e => setUsername(e.target.value)} variant="outlined" />
@@ -221,7 +243,7 @@ export default function VideoMeeting() {
                         <video ref={localVideoref} autoPlay muted></video>
                     </div>
                 </div> :
-            }
+            {/*}*/}
                 
         </div>
     );
