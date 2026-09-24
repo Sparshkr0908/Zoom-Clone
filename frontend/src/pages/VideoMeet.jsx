@@ -38,6 +38,8 @@ export default function VideoMeeting() {
 
     })
 
+
+
     const getPermissions = async () => {
         try {
             const videoPermission = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -91,8 +93,7 @@ export default function VideoMeeting() {
 
     }
 
-    //add getUserMediaSuccess further this is for implementaiton of situation, if i have off the mic or video it must off the mic and video in all the pc.
-
+    
      let getUserMediaSuccess = (stream) => {
         try {
             window.localStream.getTracks().forEach(track => track.stop())
@@ -274,9 +275,25 @@ export default function VideoMeeting() {
     }
 
 
+    let silence = () => {
+        let ctx = new AudioContext()
+        let oscillator = ctx.createOscillator()
+        let dst = oscillator.connect(ctx.createMediaStreamDestination())
+        oscillator.start()
+        ctx.resume()
+        return Object.assign(dst.stream.getAudioTracks()[0], { enabled: false })
+    }
+
+    let black = ({ width = 640, height = 480 } = {}) => {
+        let canvas = Object.assign(document.createElement("canvas"), { width, height })
+        canvas.getContext('2d').fillRect(0, 0, width, height)
+        let stream = canvas.captureStream()
+        return Object.assign(stream.getVideoTracks()[0], { enabled: false })
+    }
+
 
    let connect = () => {
-        setAskForUsername(false);
+        //setAskForUsername(false);
         getMedia();
     }
 
