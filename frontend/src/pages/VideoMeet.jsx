@@ -90,6 +90,20 @@ export default function VideoMeeting() {
 
     }
 
+    let getUserMedia = () => {
+        if ((video && videoAvailable) || (audio && audioAvailable)) {
+            navigator.mediaDevices.getUserMedia({ video: video, audio: audio })
+                .then(getUserMediaSuccess)
+                .then((stream) => { })
+                .catch((e) => console.log(e))
+        } else {
+            try {
+                let tracks = localVideoref.current.srcObject.getTracks()
+                tracks.forEach(track => track.stop())
+            } catch (e) { }
+        }
+    }
+
 
 
    let connect = () => {
