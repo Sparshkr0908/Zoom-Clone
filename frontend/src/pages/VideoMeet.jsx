@@ -33,7 +33,6 @@ export default function VideoMeeting() {
     let [videos, setVideos] = useState([])
 
     useEffect(() => {
-        console.log("HELLO")
         getPermissions();
 
     })
@@ -77,6 +76,21 @@ export default function VideoMeeting() {
             console.log(error);
         }
     };
+
+     useEffect(() => {
+        if (video !== undefined && audio !== undefined) {
+            getUserMedia();
+        }
+    }, [video, audio])
+
+    let getMedia = () => {
+        setVideo(videoAvailable);
+        setAudio(audioAvailable);
+        connectToSocketServer();
+
+    }
+
+
 
    let connect = () => {
         setAskForUsername(false);
