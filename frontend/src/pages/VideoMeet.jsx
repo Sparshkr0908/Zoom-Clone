@@ -1,4 +1,6 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState,useEffect } from "react";
+import { Badge, IconButton, TextField } from '@mui/material';
+import { Button } from '@mui/material';
 
 const server_url = "https://localhost:5501";
 
@@ -30,10 +32,24 @@ export default function VideoMeeting() {
     const videoRef = useRef([])
     let [videos, setVideos] = useState([])
 
+   let connect = () => {
+        setAskForUsername(false);
+        getMedia();
+    }
 
     return (
         <div>
-            
+            {askForUsername === true ? 
+                <div>
+                    <h2>Enter into Lobby </h2>
+                    <TextField id="outlined-basic" label="Username" value={username} onChange={e => setUsername(e.target.value)} variant="outlined" />
+                    <Button variant="contained" onClick={connect}>Connect</Button>
+                    <div>
+                        <video ref={localVideoref} autoPlay muted></video>
+                    </div>
+                </div> :
+            }
+                
         </div>
     );
 }

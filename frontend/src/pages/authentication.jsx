@@ -14,6 +14,8 @@ import { AuthContext } from "../contexts/AuthContext";
 const defaultTheme = createTheme();
 
 export default function Authentication() {
+
+    const { handleRegister, handleLogin } = React.useContext(AuthContext);
     const [username, setUsername] = React.useState("");
     const [password, setPassword] = React.useState("");
     const [name, setName] = React.useState("");

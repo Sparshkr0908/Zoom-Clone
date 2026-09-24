@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 export const AuthContext = createContext({});
 
 const client = axios.create({
-    baseURL: "https://localhost:5501/api/v1/users"
+    baseURL: "http://localhost:5501/api/v1/users"
 })
 
 export const AuthProvider = ({ children }) => {
@@ -38,9 +38,6 @@ export const AuthProvider = ({ children }) => {
                 username: username,
                 password: password
             });
-
-            console.log(username, password)
-            console.log(request.data)
 
             if (request.status === httpStatus.OK) {
                 localStorage.setItem("token", request.data.token);
