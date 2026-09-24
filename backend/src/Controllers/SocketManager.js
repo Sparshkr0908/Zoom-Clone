@@ -24,7 +24,7 @@ export const connectToSocket = (server) =>{
 
             timeOnline[socket.id] = new Date();
             
-            for(let a = 0; a < connections[path].length;i++){
+            for(let a = 0; a < connections[path].length; a++){
                 io.to(connections[path][a]).emit("user-joined", socket.id, connections[path])
             }
 
@@ -70,7 +70,7 @@ export const connectToSocket = (server) =>{
 
             var key
 
-            for(const [k,v] of JSON.parse(JSoN.stringify(Object.entries(connections)))){
+            for(const [k,v] of JSON.parse(JSON.stringify(Object.entries(connections)))){
                 for(let a = 0; a < v.length; ++a){
                     if(v[a] === socket.id){
                         key = k
