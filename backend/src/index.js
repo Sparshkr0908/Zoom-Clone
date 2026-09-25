@@ -6,7 +6,7 @@ import {createServer} from "node:http";
 import { Server } from "socket.io";
 import mongoose from "mongoose";
 import cors from "cors";
-import { connectToSocket } from "./Controllers/SocketManager.js";
+import { connectToSocket, isMeetingActive } from "./Controllers/SocketManager.js";
 
 import userRoutes from "./Routes/User.route.js";
 
@@ -22,6 +22,12 @@ app.use(express.json({limit: "40Kb"}));
 app.use(express.urlencoded({limit: "40Kb", extended: true}));
 
 app.use("/api/v1/users", userRoutes);
+
+app.get("/api/v1/meeting/check/:code", (req, res) => {
+    const { code } = req.params;
+    const active = isMeetingActive(code);
+    res.json({ active });
+});
 
 const start = async() =>{
     try {
