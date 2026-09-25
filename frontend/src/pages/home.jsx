@@ -1,18 +1,51 @@
 import React, { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import withAuth from '../utils/withAuth'
 import "../App.css";
-import { Button, IconButton, TextField } from '@mui/material';
+import { Button, IconButton, TextField, Typography } from '@mui/material';
 import RestoreIcon from '@mui/icons-material/Restore';
 import { AuthContext } from '../contexts/AuthContext';
 
-export default function HomeComponent() {
+function HomeComponent() {
     let navigate = useNavigate();
     const [meetingCode, setMeetingCode] = useState("");
-    const {addToUserHistory} = useContext(AuthContext);
-    let handleJoinVideoCall = async () => {
-        await addToUserHistory(meetingCode)
-        navigate(`/${meetingCode}`)
+    const [error, setError] = useState("");
+    const { addToUserHistory, checkMeetingActive } = useContext(AuthContext);
+
+    const generateMeetingCode = () => {
+        return Math.random().toString(36).substring(2, 10);
     }
+
+    let handleCreateMeeting = async () => {
+    const newCode = generateMeetingCode();
+    try {
+        await addToUserHistory(newCode);
+        navigate(`/${newCode}`, { state: { isHost: true } });
+    } catch (err) {
+        setError("Failed to create meeting. Please try again.");
+    }
+}
+
+    let handleJoinVideoCall = async () => {
+        if (!meetingCode.trim()) {
+            setError("Please enter a meeting code");
+            return;
+        }
+
+        try {
+            const active = await checkMeetingActive(meetingCode);
+            if (!active) {
+                setError("Meeting not found or has ended.");
+                return;
+            }
+            setError("");
+            await addToUserHistory(meetingCode);
+            navigate(`/${meetingCode}`, { state: { isHost: false } });
+        } catch (err) {
+            setError("Something went wrong. Please try again.");
+        }
+    }
+
     return (
         <>
             <div className="navBar">
@@ -20,11 +53,7 @@ export default function HomeComponent() {
                     <h2>Mera Video Call</h2>
                 </div>
                 <div style={{ display: "flex", alignItems: "center" }}>
-                    <IconButton onClick={
-                        () => {
-                            navigate("/history")
-                        }
-                    }>
+                    <IconButton onClick={() => navigate("/history")}>
                         <RestoreIcon />
                     </IconButton>
                     <p>History</p>
@@ -41,11 +70,24 @@ export default function HomeComponent() {
                 <div className="leftPanel">
                     <div>
                         <h2>Providing Quality Video Call Just Like Quality Education</h2>
-
-                        <div style={{ display: 'flex', gap: "10px" }}>
-                            <TextField onChange={e => setMeetingCode(e.target.value)} id="outlined-basic" label="Meeting Code" variant="outlined" />
+                        <div style={{ display: 'flex', gap: "10px", marginBottom: "10px" }}>
+                            <TextField
+                                onChange={e => { setMeetingCode(e.target.value); setError(""); }}
+                                id="outlined-basic"
+                                label="Meeting Code"
+                                variant="outlined"
+                                error={!!error}
+                            />
                             <Button onClick={handleJoinVideoCall} variant='contained'>Join</Button>
                         </div>
+                        {error && (
+                            <Typography color="error" sx={{ mb: 1 }}>
+                                {error}
+                            </Typography>
+                        )}
+                        <Button onClick={handleCreateMeeting} variant='outlined'>
+                            + New Meeting
+                        </Button>
                     </div>
                 </div>
                 <div className='rightPanel'>
@@ -55,3 +97,5 @@ export default function HomeComponent() {
         </>
     )
 }
+
+export default withAuth(HomeComponent)
