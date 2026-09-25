@@ -174,7 +174,6 @@ export default function VideoMeeting() {
     }
 
     let getDislayMediaSuccess = (stream) => {
-        console.log("HERE")
         try {
             window.localStream.getTracks().forEach(track => track.stop())
         } catch (e) { console.log(e) }
@@ -250,11 +249,9 @@ export default function VideoMeeting() {
 
                     // Wait for their video stream
                     connections[socketListId].onaddstream = (event) => {
-                        console.log("BEFORE:", videoRef.current);
-                        console.log("FINDING ID: ", socketListId);
+                        
                         let videoExists = videoRef.current.find(video => video.socketId === socketListId);
                         if (videoExists) {
-                            console.log("FOUND EXISTING");
                             setVideos(videos => {
                                 const updatedVideos = videos.map(video =>
                                     video.socketId === socketListId ? { ...video, stream: event.stream } : video
@@ -263,7 +260,6 @@ export default function VideoMeeting() {
                                 return updatedVideos;
                             });
                         } else {
-                            console.log("CREATING NEW");
                             let newVideo = {
                                 socketId: socketListId,
                                 stream: event.stream,
