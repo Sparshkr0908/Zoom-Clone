@@ -29,6 +29,19 @@ app.get("/api/v1/meeting/check/:code", (req, res) => {
     res.json({ active });
 });
 
+app.post("/api/v1/meeting/mark-started/:code", async (req, res) => {
+    const { code } = req.params;
+    try {
+        await Meeting.findOneAndUpdate(
+            { meetingCode: code, startedAt: { $exists: false } },
+            { startedAt: new Date() } 
+        );
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false, message: "Something went wrong" });
+    }
+});
+
 const start = async() =>{
     try {
         await mongoose.connect(uri);
