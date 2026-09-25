@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect,useContext } from "react";
 import { Badge, IconButton, TextField } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -14,6 +14,7 @@ import StopScreenShareIcon from "@mui/icons-material/StopScreenShare";
 import ChatIcon from "@mui/icons-material/Chat";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import styles from "../styles/videoComponent.module.css";
+import { AuthContext } from "../contexts/AuthContext";
 
 const server_url = "http://localhost:5501";
 
@@ -28,6 +29,7 @@ export default function VideoMeeting() {
   const navigate = useNavigate();
   const [meetingChecked, setMeetingChecked] = useState(false);
   const [meetingValid, setMeetingValid] = useState(true);
+  const { markMeetingStarted } = useContext(AuthContext);
 
   useEffect(() => {
     const verifyMeeting = async () => {
@@ -490,13 +492,16 @@ export default function VideoMeeting() {
 
   let connect = () => {
     if (username.trim() === "") {
-      setUsernameError(true);
-      return;
+        setUsernameError(true);
+        return;
     }
     setUsernameError(false);
     setAskForUsername(false);
+
+    const code = window.location.pathname.slice(1);
+    markMeetingStarted(code);   
     getMedia();
-  };
+  }
 
   let handleCopyCode = () => {
     const code = window.location.pathname.slice(1);
