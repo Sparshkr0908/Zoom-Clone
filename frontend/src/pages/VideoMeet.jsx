@@ -37,6 +37,7 @@ export default function VideoMeeting() {
     let [messages, setMessages] = useState([])
     let [message, setMessage] = useState("");
     let [newMessages, setNewMessages] = useState(1);
+    let [usernameError, setUsernameError] = useState(false);
     let [askForUsername, setAskForUsername] = useState(true);
     let [username, setUsername] = useState("");
     const videoRef = useRef([])
@@ -366,15 +367,23 @@ export default function VideoMeeting() {
     };
 
     let sendMessage = () => {
-        console.log(socketRef.current);
-        socketRef.current.emit('chat-message', message, username)
-        setMessage("");
-    }
+    socketRef.current.emit('chat-message', message, username);
+    setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: username, data: message }
+    ]);
+    setMessage("");
+}
 
    let connect = () => {
-        setAskForUsername(false);
-        getMedia();
+    if (username.trim() === "") {
+        setUsernameError(true);
+        return;
     }
+    setUsernameError(false);
+    setAskForUsername(false);
+    getMedia();
+}
 
     return (
         <div>
@@ -384,7 +393,14 @@ export default function VideoMeeting() {
                      <h2 className={styles.lobbyTitle}>
                         Enter into Lobby
                     </h2>
-                    <TextField className={styles.lobbyInput} id="outlined-basic" label="Username" value={username} onChange={e => setUsername(e.target.value)} variant="outlined" />
+                    <TextField className={styles.lobbyInput} 
+                        id="outlined-basic" 
+                        label="Username" 
+                        value={username} 
+                        onChange={e => { setUsername(e.target.value); setUsernameError(false); }} 
+                        variant="outlined" error={usernameError}
+                        helperText={usernameError ? "Username is required" : ""}
+                    />
                     <Button className={styles.lobbyButton} variant="contained" onClick={connect}>
                         Connect
                     </Button>    
