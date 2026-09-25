@@ -10,6 +10,10 @@ const client = axios.create({
     baseURL: "http://localhost:5501/api/v1/users"
 })
 
+const meetingClient = axios.create({
+    baseURL: "http://localhost:5501/api/v1/meeting"
+})
+
 export const AuthProvider = ({ children }) => {
     const authContext = useContext(AuthContext);
     const [userData, setUserData] = useState(authContext);
@@ -74,9 +78,18 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
+    const checkMeetingActive = async (meetingCode) => {
+        try {
+            let request = await meetingClient.get(`/check/${meetingCode}`);
+            return request.data.active;
+        } catch (err) {
+            throw err;
+        }
+    }
+
 
     const data = {
-        userData, setUserData,handleRegister, handleLogin, getHistoryOfUser, addToUserHistory
+        userData, setUserData, handleRegister, handleLogin, getHistoryOfUser, addToUserHistory, checkMeetingActive
     }
 
     return (
