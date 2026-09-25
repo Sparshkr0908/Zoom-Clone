@@ -87,9 +87,17 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
+    const markMeetingStarted = async (meetingCode) => {
+    try {
+        await meetingClient.post(`/mark-started/${meetingCode}`);
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 
     const data = {
-        userData, setUserData, handleRegister, handleLogin, getHistoryOfUser, addToUserHistory, checkMeetingActive
+        userData, setUserData, handleRegister, handleLogin, getHistoryOfUser, addToUserHistory, checkMeetingActive, markMeetingStarted
     }
 
     return (
