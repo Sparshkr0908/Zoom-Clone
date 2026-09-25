@@ -24,11 +24,16 @@ app.use(express.urlencoded({limit: "40Kb", extended: true}));
 app.use("/api/v1/users", userRoutes);
 
 const start = async() =>{
-    server.listen(PORT,()=>{
-        console.log(`Listen to port ${PORT}`);
-         mongoose.connect(uri);
-    console.log("MongoDB connected successfully.");
-    });
+    try {
+        await mongoose.connect(uri);
+        console.log("MongoDB connected successfully.");
+        server.listen(PORT, ()=>{
+            console.log(`Listening on port ${PORT}`);
+        });
+    } catch (err) {
+        console.error("Failed to connect to MongoDB:", err);
+        process.exit(1);
+    }
 }
 
 start();
