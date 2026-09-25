@@ -20,8 +20,10 @@ export default function History() {
             try {
                 const history = await getHistoryOfUser();
                 setMeetings(history);
-            } catch {
-                // IMPLEMENT SNACKBAR
+            } catch(err) {
+                console.log(err);
+                setError("Failed to load meeting history. Please try again.");
+                setOpenSnackbar(true);
             }
         }
         fetchHistory();
