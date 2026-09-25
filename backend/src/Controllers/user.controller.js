@@ -20,8 +20,8 @@ const login = async(req, res)=>{
 
         if(isPasswordCorrect){
             let token = crypto.randomBytes(20).toString("hex");
-
             user.token = token;
+            user.tokenExpiresAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
             await user.save();
             return res.status(httpStatus.OK).json({token:token})
         }
@@ -34,9 +34,16 @@ const login = async(req, res)=>{
     }
 }
 
-
 const register = async (req, res)=>{
     const {name, username, password} = req.body;
+
+    if(!name || !username || !password){
+        return res.status(httpStatus.BAD_REQUEST).json({message: "Please provide name, username and password"});
+    }
+
+    if(password.length < 12){
+        return res.status(httpStatus.BAD_REQUEST).json({message: "Password must be at least 12 characters long"});
+    }
 
     try{
         const existingUser = await User.findOne({username});
@@ -90,4 +97,28 @@ const addToHistory = async (req, res) => {
     }
 }
 
-export {login, register, getUserHistory, addToHistory}
+const verifyToken = async (req, res) => {
+    const { token } = req.query;
+
+    if (!token) {
+        return res.status(httpStatus.UNAUTHORIZED).json({ valid: false, message: "No token provided" });
+    }
+
+    try {
+        const user = await User.findOne({ token: token });
+
+        if (!user) {
+            return res.status(httpStatus.UNAUTHORIZED).json({ valid: false, message: "Invalid token" });
+        }
+
+        if (!user.tokenExpiresAt || user.tokenExpiresAt < new Date()) {
+            return res.status(httpStatus.UNAUTHORIZED).json({ valid: false, message: "Token expired" });
+        }
+
+        return res.status(httpStatus.OK).json({ valid: true, username: user.username });
+    } catch (e) {
+        return res.status(500).json({ valid: false, message: `Something went wrong ${e}` });
+    }
+}
+
+export {login, register, getUserHistory, addToHistory, verifyToken}
