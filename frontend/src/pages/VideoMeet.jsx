@@ -95,6 +95,9 @@ export default function VideoMeeting() {
         }
     } catch (error) {
         console.log(error);
+        if (error.name === "NotAllowedError") {
+            alert("Camera/Mic access is blocked. Please enable it from your browser's site settings and reload the page.");
+        }
     }
 };
 
@@ -368,10 +371,6 @@ export default function VideoMeeting() {
 
     let sendMessage = () => {
     socketRef.current.emit('chat-message', message, username);
-    setMessages((prevMessages) => [
-        ...prevMessages,
-        { sender: username, data: message }
-    ]);
     setMessage("");
 }
 
