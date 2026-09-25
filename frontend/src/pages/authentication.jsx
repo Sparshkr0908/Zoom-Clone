@@ -28,12 +28,14 @@ export default function Authentication() {
     let handleAuth = async () => {
         try {
             if (formState === 0) {
-
                 let result = await handleLogin(username, password)
-
-
             }
             if (formState === 1) {
+
+                if (password.length < 12) {
+                    setError("Password must be at least 12 characters long");
+                    return;
+                }
                 let result = await handleRegister(name, username, password);
                 console.log(result);
                 setUsername("");
@@ -44,9 +46,8 @@ export default function Authentication() {
                 setPassword("")
             }
         } catch (err) {
-
             console.log(err);
-            let message = (err.response.data.message);
+            let message = err?.response?.data?.message || "Something went wrong. Please try again.";
             setError(message);
         }
     }
