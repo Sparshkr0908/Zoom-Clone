@@ -16,7 +16,7 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import styles from "../styles/videoComponent.module.css";
 import { AuthContext } from "../contexts/AuthContext";
 
-const server_url = "http://localhost:5501";
+const server_url = import.meta.env.VITE_API_URL;
 
 var connections = {};
 

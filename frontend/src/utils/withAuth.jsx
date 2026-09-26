@@ -19,8 +19,10 @@ const withAuth = (WrappedComponent) => {
                 }
 
                 try {
+                    const API_URL = import.meta.env.VITE_API_URL;
+
                     const response = await axios.get(
-                        "http://localhost:5501/api/v1/users/verify",
+                        `${API_URL}/api/v1/users/verify`,
                         { params: { token } }
                     );
 

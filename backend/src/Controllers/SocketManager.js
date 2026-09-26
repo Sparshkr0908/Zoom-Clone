@@ -11,7 +11,7 @@ export const isMeetingActive = (path) => {
 export const connectToSocket = (server) =>{
     const io = new Server(server, {
         cors: {
-            origin: "*",
+            origin: process.env.CLIENT_URL || "*",
             methods: ["GET", "POST"]
         }
     });

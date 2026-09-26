@@ -6,12 +6,14 @@ import { useNavigate } from "react-router-dom";
 
 export const AuthContext = createContext({});
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const client = axios.create({
-    baseURL: "http://localhost:5501/api/v1/users"
+    baseURL: `${API_URL}/api/v1/users`
 })
 
 const meetingClient = axios.create({
-    baseURL: "http://localhost:5501/api/v1/meeting"
+    baseURL: `${API_URL}/api/v1/meeting`
 })
 
 export const AuthProvider = ({ children }) => {
