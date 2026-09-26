@@ -48,7 +48,7 @@ export default function VideoMeeting() {
 
         const code = window.location.pathname.slice(1);
         try {
-            const response = await axios.get(`${API_URL}/api/v1/meeting/check/${code}`);
+            const response = await axios.get(`${server_url}/api/v1/meeting/check/${code}`);
             if (!response.data.active) {
                 navigate("/home");
                 return;
