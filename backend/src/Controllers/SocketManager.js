@@ -8,10 +8,15 @@ export const isMeetingActive = (path) => {
     return connections[path] !== undefined && connections[path].length > 0;
 }
 
-export const connectToSocket = (server) =>{
+export const connectToSocket = (server) => {
+    const allowedOrigins = [
+        "http://localhost:5173",
+        process.env.CLIENT_URL
+    ].filter(Boolean);
+
     const io = new Server(server, {
         cors: {
-            origin: process.env.CLIENT_URL || "*",
+            origin: allowedOrigins,
             methods: ["GET", "POST"]
         }
     });

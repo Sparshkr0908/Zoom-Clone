@@ -166,6 +166,24 @@ export default function VideoMeeting() {
     connectToSocketServer();
   };
 
+  let createOfferAndSignal = (id) => {
+    if (connections[id].negotiating) return;
+    connections[id].negotiating = true;
+
+    connections[id].createOffer().then((description) => {
+        connections[id].setLocalDescription(description)
+            .then(() => {
+                socketRef.current.emit('signal', id, JSON.stringify({ 'sdp': connections[id].localDescription }))
+            })
+            .catch(e => console.log(e))
+            .finally(() => {
+                connections[id].negotiating = false;
+            })
+    }).catch(e => {
+        connections[id].negotiating = false;
+    })
+}
+
   let getUserMediaSuccess = (stream) => {
     try {
       window.localStream.getTracks().forEach((track) => track.stop());
@@ -177,23 +195,10 @@ export default function VideoMeeting() {
     localVideoref.current.srcObject = stream;
 
     for (let id in connections) {
-      if (id === socketIdRef.current) continue;
+      if (id === socketIdRef.current) continue
 
-      connections[id].addStream(window.localStream);
-
-      connections[id].createOffer().then((description) => {
-        console.log(description);
-        connections[id]
-          .setLocalDescription(description)
-          .then(() => {
-            socketRef.current.emit(
-              "signal",
-              id,
-              JSON.stringify({ sdp: connections[id].localDescription }),
-            );
-          })
-          .catch((e) => console.log(e));
-      });
+      connections[id].addStream(window.localStream)
+      createOfferAndSignal(id)
     }
 
     stream.getTracks().forEach(
@@ -215,20 +220,8 @@ export default function VideoMeeting() {
           localVideoref.current.srcObject = window.localStream;
 
           for (let id in connections) {
-            connections[id].addStream(window.localStream);
-
-            connections[id].createOffer().then((description) => {
-              connections[id]
-                .setLocalDescription(description)
-                .then(() => {
-                  socketRef.current.emit(
-                    "signal",
-                    id,
-                    JSON.stringify({ sdp: connections[id].localDescription }),
-                  );
-                })
-                .catch((e) => console.log(e));
-            });
+            connections[id].addStream(window.localStream)
+            createOfferAndSignal(id)
           }
         }),
     );
@@ -260,20 +253,9 @@ export default function VideoMeeting() {
     localVideoref.current.srcObject = stream;
 
     for (let id in connections) {
-      if (id === socketIdRef.current) continue;
-      connections[id].addStream(window.localStream);
-      connections[id].createOffer().then((description) => {
-        connections[id]
-          .setLocalDescription(description)
-          .then(() => {
-            socketRef.current.emit(
-              "signal",
-              id,
-              JSON.stringify({ sdp: connections[id].localDescription }),
-            );
-          })
-          .catch((e) => console.log(e));
-      });
+      if (id === socketIdRef.current) continue
+        connections[id].addStream(window.localStream)
+        createOfferAndSignal(id)
     }
 
     stream.getTracks().forEach(
@@ -402,22 +384,11 @@ export default function VideoMeeting() {
 
         if (id === socketIdRef.current) {
           for (let id2 in connections) {
-            if (id2 === socketIdRef.current) continue;
+            if (id2 === socketIdRef.current) continue
             try {
-              connections[id2].addStream(window.localStream);
-            } catch (e) {}
-            connections[id2].createOffer().then((description) => {
-              connections[id2]
-                .setLocalDescription(description)
-                .then(() => {
-                  socketRef.current.emit(
-                    "signal",
-                    id2,
-                    JSON.stringify({ sdp: connections[id2].localDescription }),
-                  );
-                })
-                .catch((e) => console.log(e));
-            });
+              connections[id2].addStream(window.localStream)
+            } catch (e) { }
+              createOfferAndSignal(id2)
           }
         }
       });
