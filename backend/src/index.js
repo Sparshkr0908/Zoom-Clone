@@ -6,7 +6,8 @@ import {createServer} from "node:http";
 import { Server } from "socket.io";
 import mongoose from "mongoose";
 import cors from "cors";
-import { connectToSocket, isMeetingActive } from "./Controllers/SocketManager.js";
+import { connectToSocket } from "./Controllers/SocketManager.js";
+import { Meeting } from "./Models/Meeting.model.js";
 
 import userRoutes from "./Routes/User.route.js";
 
@@ -23,16 +24,20 @@ app.use(express.urlencoded({limit: "40Kb", extended: true}));
 
 app.use("/api/v1/users", userRoutes);
 
-app.get("/api/v1/meeting/check/:code", (req, res) => {
+app.get("/api/v1/meeting/check/:code", async (req, res) => {
     const { code } = req.params;
-    const active = isMeetingActive(code);
-    res.json({ active });
+    try {
+        const meeting = await Meeting.findOne({ meetingCode: code });
+        res.json({ active: !!meeting });
+    } catch (e) {
+        res.status(500).json({ active: false, message: "Something went wrong" });
+    }
 });
 
 app.post("/api/v1/meeting/mark-started/:code", async (req, res) => {
     const { code } = req.params;
     try {
-        await Meeting.findOneAndUpdate(
+        await Meeting.updateMany(
             { meetingCode: code, startedAt: { $exists: false } },
             { startedAt: new Date() } 
         );
