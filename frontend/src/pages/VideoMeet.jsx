@@ -37,32 +37,33 @@ export default function VideoMeeting() {
   const [meetingValid, setMeetingValid] = useState(true);
   const { markMeetingStarted } = useContext(AuthContext);
 
-  useEffect(() => {
+ useEffect(() => {
     const verifyMeeting = async () => {
-      const isHost = location.state?.isHost;
-      if (isHost) {
-        setMeetingValid(true);
-        setMeetingChecked(true);
-        return;
-      }
-
-      const code = window.location.pathname.slice(1);
-      try {
-        const response = await axios.get(`${API_URL}/api/v1/meeting/check/${code}`);
-        if (!response.data.active) {
-          navigate("/home");
-          return;
+        const isHost = location.state?.isHost;
+        if (isHost) {
+            setMeetingValid(true);
+            setMeetingChecked(true);
+            return;
         }
-        setMeetingValid(true);
-      } catch (err) {
-        navigate("/home");
-        return;
-      }
-      setMeetingChecked(true);
+
+        const code = window.location.pathname.slice(1);
+        try {
+            const response = await axios.get(`${API_URL}/api/v1/meeting/check/${code}`);
+            if (!response.data.active) {
+                navigate("/home");
+                return;
+            }
+            setMeetingValid(true);
+        } catch (err) {
+            console.log("Meeting check failed:", err); 
+            navigate("/home");
+            return;
+        }
+        setMeetingChecked(true);
     };
 
     verifyMeeting();
-  }, []);
+}, []);
 
   var socketRef = useRef();
   let socketIdRef = useRef();
