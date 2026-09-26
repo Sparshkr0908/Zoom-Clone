@@ -23,6 +23,7 @@ app.get("/api/v1/meeting/check/:code", async (req, res) => {
     const { code } = req.params;
     try {
         const meeting = await Meeting.findOne({ meetingCode: code });
+        res.set("Cache-Control", "no-store");
         res.json({ active: !!meeting });
     } catch (e) {
         res.status(500).json({ active: false, message: "Something went wrong" });
