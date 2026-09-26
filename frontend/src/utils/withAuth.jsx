@@ -6,6 +6,7 @@ const withAuth = (WrappedComponent) => {
     const AuthComponent = (props) => {
         const router = useNavigate();
         const [checking, setChecking] = useState(true);
+        const [authorized, setAuthorized] = useState(false);
 
         useEffect(() => {
             const verify = async () => {
@@ -13,6 +14,7 @@ const withAuth = (WrappedComponent) => {
 
                 if (!token) {
                     router("/auth");
+                    setChecking(false);
                     return;
                 }
 
@@ -22,7 +24,9 @@ const withAuth = (WrappedComponent) => {
                         { params: { token } }
                     );
 
-                    if (!response.data.valid) {
+                    if (response.data.valid) {
+                        setAuthorized(true);
+                    } else {
                         localStorage.removeItem("token");
                         router("/auth");
                     }
@@ -37,7 +41,7 @@ const withAuth = (WrappedComponent) => {
             verify();
         }, []);
 
-        if (checking) return null;
+        if (checking || !authorized) return null;
 
         return <WrappedComponent {...props} />;
     };

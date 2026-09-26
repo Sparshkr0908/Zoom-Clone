@@ -69,14 +69,14 @@
     width: 100vw;
     bottom: 0;
     text-align: center;
-    padding: 12px 0;
+    padding: 1px 0;
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(6px);
 }
 
 
 .buttonContainers svg {
-    font-size: 3rem;
+    font-size: 2rem;
 }
 .conferenceView { 
     display: flex;
@@ -96,7 +96,7 @@
     position: absolute;
     top: 12px;
     right: 12px;
-    bottom: 12px;
+    bottom: 70px;
     width: 350px;
     max-width: calc(100vw - 24px);
     background: #ffffff;
