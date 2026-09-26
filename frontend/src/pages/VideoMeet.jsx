@@ -140,10 +140,10 @@ export default function VideoMeeting() {
       }
     } catch (error) {
       console.log(error);
-      if (error.name === "NotAllowedError") {
-        alert(
-          "Camera/Mic access is blocked. Please enable it from your browser's site settings and reload the page.",
-        );
+       if (error.name === "NotAllowedError") {
+        alert("Camera/Mic access is blocked. Please enable it from your browser's site settings and reload the page.");
+      } else if (error.name === "AbortError" || error.name === "NotReadableError") {
+        alert("Your camera seems to be in use by another app or tab. Please close it and reload.");
       }
     }
   };
