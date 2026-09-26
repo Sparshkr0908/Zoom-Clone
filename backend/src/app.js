@@ -36,4 +36,8 @@ app.post("/api/v1/meeting/mark-started/:code", async (req, res) => {
     }
 });
 
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'online', timestamp: new Date() });
+});
+
 export default app;
