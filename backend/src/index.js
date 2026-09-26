@@ -1,57 +1,22 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import express from "express";
-import {createServer} from "node:http";
-import { Server } from "socket.io";
+import { createServer } from "node:http";
 import mongoose from "mongoose";
-import cors from "cors";
+import app from "./app.js";
 import { connectToSocket } from "./Controllers/SocketManager.js";
-import { Meeting } from "./Models/Meeting.model.js";
-
-import userRoutes from "./Routes/User.route.js";
 
 const uri = process.env.MONGO_URL;
-
-const app = express();
 const server = createServer(app);
 const io = connectToSocket(server);
 
-const PORT =process.env.PORT || 5501;
-app.use(cors());
-app.use(express.json({limit: "40Kb"}));
-app.use(express.urlencoded({limit: "40Kb", extended: true}));
+const PORT = process.env.PORT || 5501;
 
-app.use("/api/v1/users", userRoutes);
-
-app.get("/api/v1/meeting/check/:code", async (req, res) => {
-    const { code } = req.params;
-    try {
-        const meeting = await Meeting.findOne({ meetingCode: code });
-        res.json({ active: !!meeting });
-    } catch (e) {
-        res.status(500).json({ active: false, message: "Something went wrong" });
-    }
-});
-
-app.post("/api/v1/meeting/mark-started/:code", async (req, res) => {
-    const { code } = req.params;
-    try {
-        await Meeting.updateMany(
-            { meetingCode: code, startedAt: { $exists: false } },
-            { startedAt: new Date() } 
-        );
-        res.json({ success: true });
-    } catch (e) {
-        res.status(500).json({ success: false, message: "Something went wrong" });
-    }
-});
-
-const start = async() =>{
+const start = async () => {
     try {
         await mongoose.connect(uri);
         console.log("MongoDB connected successfully.");
-        server.listen(PORT, ()=>{
+        server.listen(PORT, () => {
             console.log(`Listening on port ${PORT}`);
         });
     } catch (err) {
