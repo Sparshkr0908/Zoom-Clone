@@ -41,8 +41,8 @@ const register = async (req, res)=>{
         return res.status(httpStatus.BAD_REQUEST).json({message: "Please provide name, username and password"});
     }
 
-    if(password.length < 12){
-        return res.status(httpStatus.BAD_REQUEST).json({message: "Password must be at least 12 characters long"});
+    if(password.length < 6){
+        return res.status(httpStatus.BAD_REQUEST).json({message: "Password must be at least 6 characters long"});
     }
 
     try{
