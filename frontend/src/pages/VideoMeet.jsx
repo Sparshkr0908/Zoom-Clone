@@ -341,11 +341,17 @@ export default function VideoMeeting() {
 
       socketRef.current.on("user-joined", (id, clients) => {
         clients.forEach((socketListId) => {
-          if (connections[socketListId]) return; 
+          if (connections[socketListId]) return; // already have this peer
 
           connections[socketListId] = new RTCPeerConnection(peerConfigConnection);
 
-          // Wait for their ice candidate
+          connections[socketListId].oniceconnectionstatechange = () => {
+            console.log(`[${socketListId}] iceConnectionState:`, connections[socketListId].iceConnectionState);
+          };
+          connections[socketListId].onconnectionstatechange = () => {
+            console.log(`[${socketListId}] connectionState:`, connections[socketListId].connectionState);
+          };
+         
           connections[socketListId].onicecandidate = function (event) {
             if (event.candidate != null) {
               socketRef.current.emit("signal", socketListId, JSON.stringify({ ice: event.candidate }));
@@ -353,6 +359,7 @@ export default function VideoMeeting() {
           };
 
           connections[socketListId].ontrack = (event) => {
+            console.log(`[${socketListId}] ontrack fired, kind:`, event.track.kind); // diagnostics
             const incomingStream = event.streams[0];
             let videoExists = videoRef.current.find((video) => video.socketId === socketListId);
             if (videoExists) {
