@@ -21,7 +21,13 @@ const server_url = import.meta.env.VITE_API_URL;
 var connections = {};
 
 const peerConfigConnection = {
-  iceServer: [{ url: "stun:stun.l.google.com:19302" }],
+  iceServers: [{ urls: "stun:stun.l.google.com:19302" },
+    {
+      "urls": "turn:openrelay.metered.ca:80",
+      "username": "openrelayproject",
+      "credential": "openrelayproject"
+    }
+  ],
 };
 
 export default function VideoMeeting() {
