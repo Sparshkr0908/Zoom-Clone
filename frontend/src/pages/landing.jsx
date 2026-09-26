@@ -8,7 +8,8 @@ export default function LandingPage() {
     <div className="landingPageContainer">
       <nav>
         <div className="navHeader">
-          <h2>Mera Video Call</h2>
+          <img src="/logo.png" alt="Apni BaatCheet Logo" className="logoImg" />
+          <h2>Apni BaatCheet</h2>
         </div>
         <div className="navlist">
           <p className="hov"
@@ -39,12 +40,12 @@ export default function LandingPage() {
 
       <div className="landingMainContainer">
         <div>
-          <h1>
-            <span style={{ color: "#FF9839" }}>Connect</span> with your loved
-            Ones
-          </h1>
+         <h1>
+    <span style={{ color: "#FF9839" }}>Judiye</span> apno se, <br/>
+    Bina Kisi Doori Ke
+</h1>
 
-          <p>Cover a distance by Mera Video Call</p>
+<p>Apni BaatCheet — Jahan Har Time Ho Apno ka Time</p>
           <div role="button">
             <Link to={"/auth"}>Get Started</Link>
           </div>

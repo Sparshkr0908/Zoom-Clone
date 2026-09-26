@@ -32,8 +32,8 @@ export default function Authentication() {
             }
             if (formState === 1) {
 
-                if (password.length < 12) {
-                    setError("Password must be at least 12 characters long");
+                if (password.length < 6) {
+                    setError("Password must be at least 6 characters long");
                     return;
                 }
                 let result = await handleRegister(name, username, password);

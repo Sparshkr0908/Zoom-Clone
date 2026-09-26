@@ -17,14 +17,14 @@ function HomeComponent() {
     }
 
     let handleCreateMeeting = async () => {
-    const newCode = generateMeetingCode();
-    try {
-        await addToUserHistory(newCode);
-        navigate(`/${newCode}`, { state: { isHost: true } });
-    } catch (err) {
-        setError("Failed to create meeting. Please try again.");
+        const newCode = generateMeetingCode();
+        try {
+            await addToUserHistory(newCode);
+            navigate(`/${newCode}`, { state: { isHost: true } });
+        } catch (err) {
+            setError("Failed to create meeting. Please try again.");
+        }
     }
-}
 
     let handleJoinVideoCall = async () => {
         if (!meetingCode.trim()) {
@@ -50,17 +50,21 @@ function HomeComponent() {
         <>
             <div className="navBar">
                 <div style={{ display: "flex", alignItems: "center" }}>
-                    <h2>Mera Video Call</h2>
+                    <img src="/logo.png" alt="Apni BaatCheet Logo" className="logoImg" />
+                    <h2>Apni BaatCheet</h2>
                 </div>
-                <div style={{ display: "flex", alignItems: "center" }}>
+                <div className="navRight">
                     <IconButton onClick={() => navigate("/history")}>
                         <RestoreIcon />
                     </IconButton>
                     <p>History</p>
-                    <Button onClick={() => {
-                        localStorage.removeItem("token")
-                        navigate("/auth")
-                    }}>
+                    <Button
+                        className="logoutBtn"
+                        onClick={() => {
+                            localStorage.removeItem("token")
+                            navigate("/auth")
+                        }}
+                    >
                         Logout
                     </Button>
                 </div>
@@ -68,27 +72,32 @@ function HomeComponent() {
 
             <div className="meetContainer">
                 <div className="leftPanel">
-                    <div>
-                        <h2>Providing Quality Video Call Just Like Quality Education</h2>
-                        <div style={{ display: 'flex', gap: "10px", marginBottom: "10px" }}>
-                            <TextField
-                                onChange={e => { setMeetingCode(e.target.value); setError(""); }}
-                                id="outlined-basic"
-                                label="Meeting Code"
-                                variant="outlined"
-                                error={!!error}
-                            />
-                            <Button onClick={handleJoinVideoCall} variant='contained'>Join</Button>
-                        </div>
-                        {error && (
-                            <Typography color="error" sx={{ mb: 1 }}>
-                                {error}
-                            </Typography>
-                        )}
-                        <Button onClick={handleCreateMeeting} variant='outlined'>
-                            + New Meeting
-                        </Button>
+                    <h2>Apni BaatCheet Mein Aapka Swagat Hai — Baat Karo Befikar</h2>
+                    <p className="subtext">
+                        Start an instant meeting or join with a code — simple, fast, and reliable.
+                    </p>
+
+                    <div className="joinRow">
+                        <TextField
+                            onChange={e => { setMeetingCode(e.target.value); setError(""); }}
+                            id="outlined-basic"
+                            label="Meeting Code"
+                            variant="outlined"
+                            error={!!error}
+                            size="small"
+                        />
+                        <Button onClick={handleJoinVideoCall} variant='contained'>Join</Button>
                     </div>
+
+                    {error && (
+                        <Typography color="error" sx={{ mb: 2, fontSize: "14px" }}>
+                            {error}
+                        </Typography>
+                    )}
+
+                    <Button className="newMeetingBtn" onClick={handleCreateMeeting} variant='outlined'>
+                        + New Meeting
+                    </Button>
                 </div>
                 <div className='rightPanel'>
                     <img srcSet='/logo3.png' alt="" />
