@@ -23,8 +23,24 @@ var connections = {};
 const peerConfigConnection = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun1.l.google.com:19302" },
     {
       urls: "turn:openrelay.metered.ca:80",
+      username: "openrelayproject",
+      credential: "openrelayproject",
+    },
+    {
+      urls: "turn:openrelay.metered.ca:80?transport=tcp",
+      username: "openrelayproject",
+      credential: "openrelayproject",
+    },
+    {
+      urls: "turn:openrelay.metered.ca:443",
+      username: "openrelayproject",
+      credential: "openrelayproject",
+    },
+    {
+      urls: "turns:openrelay.metered.ca:443?transport=tcp",
       username: "openrelayproject",
       credential: "openrelayproject",
     },
@@ -344,14 +360,13 @@ export default function VideoMeeting() {
           if (connections[socketListId]) return; // already have this peer
 
           connections[socketListId] = new RTCPeerConnection(peerConfigConnection);
-
           connections[socketListId].oniceconnectionstatechange = () => {
             console.log(`[${socketListId}] iceConnectionState:`, connections[socketListId].iceConnectionState);
           };
           connections[socketListId].onconnectionstatechange = () => {
             console.log(`[${socketListId}] connectionState:`, connections[socketListId].connectionState);
           };
-         
+
           connections[socketListId].onicecandidate = function (event) {
             if (event.candidate != null) {
               socketRef.current.emit("signal", socketListId, JSON.stringify({ ice: event.candidate }));
@@ -605,9 +620,11 @@ export default function VideoMeeting() {
                   ref={(ref) => {
                     if (ref && video.stream) {
                       ref.srcObject = video.stream;
+                      ref.play().catch((e) => console.log("remote video play() blocked:", e));
                     }
                   }}
                   autoPlay
+                  playsInline
                 ></video>
               </div>
             ))}
