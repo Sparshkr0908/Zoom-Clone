@@ -3,6 +3,7 @@ import { Badge, IconButton, TextField } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Button } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import io from "socket.io-client";
 import VideocamIcon from "@mui/icons-material/Videocam";
 import VideocamOffIcon from "@mui/icons-material/VideocamOff";
@@ -23,17 +24,17 @@ var connections = {};
 
 var iceServersCache = null;
 const getIceServers = async () => {
-    if (iceServersCache) return iceServersCache;
-    try {
-        const response = await fetch(TURN_API);
-        const servers = await response.json();
-        iceServersCache = servers;
-        return servers;
-    } catch (e) {
-        console.log("Failed to fetch TURN credentials, using STUN fallback", e);
-        iceServersCache = [{ urls: "stun:stun.l.google.com:19302" }];
-        return iceServersCache;
-    }
+  if (iceServersCache) return iceServersCache;
+  try {
+    const response = await fetch(TURN_API);
+    const servers = await response.json();
+    iceServersCache = servers;
+    return servers;
+  } catch (e) {
+    console.log("Failed to fetch TURN credentials, using STUN fallback", e);
+    iceServersCache = [{ urls: "stun:stun.l.google.com:19302" }];
+    return iceServersCache;
+  }
 };
 
 export default function VideoMeeting() {
@@ -55,7 +56,9 @@ export default function VideoMeeting() {
 
       const code = window.location.pathname.slice(1);
       try {
-        const response = await axios.get(`${server_url}/api/v1/meeting/check/${code}`);
+        const response = await axios.get(
+          `${server_url}/api/v1/meeting/check/${code}`,
+        );
         if (!response.data.active) {
           navigate("/home");
           return;
@@ -91,7 +94,6 @@ export default function VideoMeeting() {
   const videoRef = useRef([]);
   let [videos, setVideos] = useState([]);
   let [copied, setCopied] = useState(false);
-  
 
   useEffect(() => {
     getPermissions();
@@ -99,7 +101,7 @@ export default function VideoMeeting() {
 
   useEffect(() => {
     getIceServers().then(() => setIceServersReady(true));
-}, []);
+  }, []);
 
   let getDislayMedia = () => {
     if (screen) {
@@ -158,9 +160,16 @@ export default function VideoMeeting() {
     } catch (error) {
       console.log(error);
       if (error.name === "NotAllowedError") {
-        alert("Camera/Mic access is blocked. Please enable it from your browser's site settings and reload the page.");
-      } else if (error.name === "AbortError" || error.name === "NotReadableError") {
-        alert("Your camera seems to be in use by another app or tab. Please close it and reload.");
+        alert(
+          "Camera/Mic access is blocked. Please enable it from your browser's site settings and reload the page.",
+        );
+      } else if (
+        error.name === "AbortError" ||
+        error.name === "NotReadableError"
+      ) {
+        alert(
+          "Your camera seems to be in use by another app or tab. Please close it and reload.",
+        );
       }
     }
   };
@@ -187,7 +196,11 @@ export default function VideoMeeting() {
         connections[id]
           .setLocalDescription(description)
           .then(() => {
-            socketRef.current.emit("signal", id, JSON.stringify({ sdp: connections[id].localDescription }));
+            socketRef.current.emit(
+              "signal",
+              id,
+              JSON.stringify({ sdp: connections[id].localDescription }),
+            );
           })
           .catch((e) => console.log(e))
           .finally(() => {
@@ -205,7 +218,9 @@ export default function VideoMeeting() {
 
     let needsRenegotiation = false;
     stream.getTracks().forEach((track) => {
-      const sender = pc.getSenders().find((s) => s.track && s.track.kind === track.kind);
+      const sender = pc
+        .getSenders()
+        .find((s) => s.track && s.track.kind === track.kind);
       if (sender) {
         sender.replaceTrack(track).catch((e) => console.log(e));
       } else {
@@ -249,7 +264,8 @@ export default function VideoMeeting() {
             console.log(e);
           }
 
-          let blackSilence = (...args) => new MediaStream([black(...args), silence()]);
+          let blackSilence = (...args) =>
+            new MediaStream([black(...args), silence()]);
           window.localStream = blackSilence();
           localVideoref.current.srcObject = window.localStream;
 
@@ -295,7 +311,8 @@ export default function VideoMeeting() {
           } catch (e) {
             console.log(e);
           }
-          let blackSilence = (...args) => new MediaStream([black(...args), silence()]);
+          let blackSilence = (...args) =>
+            new MediaStream([black(...args), silence()]);
           window.localStream = blackSilence();
           localVideoref.current.srcObject = window.localStream;
           getUserMedia();
@@ -333,7 +350,9 @@ export default function VideoMeeting() {
           .catch((e) => console.log(e));
       }
       if (signal.ice) {
-        connections[fromId].addIceCandidate(new RTCIceCandidate(signal.ice)).catch((e) => console.log(e));
+        connections[fromId]
+          .addIceCandidate(new RTCIceCandidate(signal.ice))
+          .catch((e) => console.log(e));
       }
     }
   };
@@ -359,26 +378,43 @@ export default function VideoMeeting() {
           connections[socketListId] = new RTCPeerConnection({ iceServers });
 
           connections[socketListId].oniceconnectionstatechange = () => {
-            console.log(`[${socketListId}] iceConnectionState:`, connections[socketListId].iceConnectionState);
+            console.log(
+              `[${socketListId}] iceConnectionState:`,
+              connections[socketListId].iceConnectionState,
+            );
           };
           connections[socketListId].onconnectionstatechange = () => {
-            console.log(`[${socketListId}] connectionState:`, connections[socketListId].connectionState);
+            console.log(
+              `[${socketListId}] connectionState:`,
+              connections[socketListId].connectionState,
+            );
           };
 
           connections[socketListId].onicecandidate = function (event) {
             if (event.candidate != null) {
-              socketRef.current.emit("signal", socketListId, JSON.stringify({ ice: event.candidate }));
+              socketRef.current.emit(
+                "signal",
+                socketListId,
+                JSON.stringify({ ice: event.candidate }),
+              );
             }
           };
 
           connections[socketListId].ontrack = (event) => {
-            console.log(`[${socketListId}] ontrack fired, kind:`, event.track.kind);
+            console.log(
+              `[${socketListId}] ontrack fired, kind:`,
+              event.track.kind,
+            );
             const incomingStream = event.streams[0];
-            let videoExists = videoRef.current.find((video) => video.socketId === socketListId);
+            let videoExists = videoRef.current.find(
+              (video) => video.socketId === socketListId,
+            );
             if (videoExists) {
               setVideos((videos) => {
                 const updatedVideos = videos.map((video) =>
-                  video.socketId === socketListId ? { ...video, stream: incomingStream } : video,
+                  video.socketId === socketListId
+                    ? { ...video, stream: incomingStream }
+                    : video,
                 );
                 videoRef.current = updatedVideos;
                 return updatedVideos;
@@ -400,7 +436,8 @@ export default function VideoMeeting() {
           };
 
           if (window.localStream === undefined || window.localStream === null) {
-            let blackSilence = (...args) => new MediaStream([black(...args), silence()]);
+            let blackSilence = (...args) =>
+              new MediaStream([black(...args), silence()]);
             window.localStream = blackSilence();
           }
           window.localStream.getTracks().forEach((track) => {
@@ -476,7 +513,10 @@ export default function VideoMeeting() {
   };
 
   const addMessage = (data, sender, socketIdSender) => {
-    setMessages((prevMessages) => [...prevMessages, { sender: sender, data: data }]);
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { sender: sender, data: data },
+    ]);
     if (socketIdSender !== socketIdRef.current) {
       setNewMessages((prevNewMessages) => prevNewMessages + 1);
     }
@@ -521,7 +561,9 @@ export default function VideoMeeting() {
             <IconButton onClick={handleCopyCode} size="small">
               <ContentCopyIcon fontSize="small" />
             </IconButton>
-            {copied && <span style={{ color: "green", fontSize: "13px" }}>Copied!</span>}
+            {copied && (
+              <span style={{ color: "green", fontSize: "13px" }}>Copied!</span>
+            )}
           </div>
 
           <TextField
@@ -537,11 +579,20 @@ export default function VideoMeeting() {
             error={usernameError}
             helperText={usernameError ? "Username is required" : ""}
           />
-          <Button className={styles.lobbyButton} variant="contained" onClick={connect}>
+          <Button
+            className={styles.lobbyButton}
+            variant="contained"
+            onClick={connect}
+          >
             Connect
           </Button>
           <div className={styles.lobbyVideoContainer}>
-            <video className={styles.lobbyVideo} ref={localVideoref} autoPlay muted></video>
+            <video
+              className={styles.lobbyVideo}
+              ref={localVideoref}
+              autoPlay
+              muted
+            ></video>
           </div>
         </div>
       ) : (
@@ -549,7 +600,12 @@ export default function VideoMeeting() {
           {showModal ? (
             <div className={styles.chatRoom}>
               <div className={styles.chatContainer}>
-                <h1>Chat</h1>
+                <div className={styles.chatHeader}>
+                  <h1>Chat</h1>
+                  <IconButton onClick={() => setModal(false)} size="small">
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </div>
                 <div className={styles.chattingDisplay}>
                   {messages.length !== 0 ? (
                     messages.map((item, index) => {
@@ -596,20 +652,32 @@ export default function VideoMeeting() {
 
             {screenAvailable === true ? (
               <IconButton onClick={handleScreen} style={{ color: "white" }}>
-                {screen === true ? <ScreenShareIcon /> : <StopScreenShareIcon />}
+                {screen === true ? (
+                  <ScreenShareIcon />
+                ) : (
+                  <StopScreenShareIcon />
+                )}
               </IconButton>
             ) : (
               <></>
             )}
 
             <Badge badgeContent={newMessages} max={999} color="secondary">
-              <IconButton onClick={() => setModal(!showModal)} style={{ color: "white" }}>
+              <IconButton
+                onClick={() => setModal(!showModal)}
+                style={{ color: "white" }}
+              >
                 <ChatIcon />{" "}
               </IconButton>
             </Badge>
           </div>
 
-          <video className={styles.meetUserVideo} ref={localVideoref} autoPlay muted></video>
+          <video
+            className={styles.meetUserVideo}
+            ref={localVideoref}
+            autoPlay
+            muted
+          ></video>
           <div className={styles.conferenceView}>
             {videos.map((video) => (
               <div key={video.socketId}>
@@ -618,7 +686,11 @@ export default function VideoMeeting() {
                   ref={(ref) => {
                     if (ref && video.stream) {
                       ref.srcObject = video.stream;
-                      ref.play().catch((e) => console.log("remote video play() blocked:", e));
+                      ref
+                        .play()
+                        .catch((e) =>
+                          console.log("remote video play() blocked:", e),
+                        );
                     }
                   }}
                   autoPlay

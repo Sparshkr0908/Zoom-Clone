@@ -1,7 +1,7 @@
 .lobbyArea {
     height: 100vh;
     width: 100vw;
-    background: linear-gradient(135deg, #757576 0%, #ffffff 100%);
+    background: linear-gradient(135deg, #dfdfe0 0%, #ffffff 100%);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -123,6 +123,12 @@
     border-bottom: 1px solid #ebebeb;
 }
 
+.chatHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .chattingDisplay {
     flex: 1;
     min-height: 0;
@@ -191,15 +197,34 @@
 
     .chatRoom {
         top: 0;
-        right: 0;
-        bottom: 0;
+        right:0;
+        bottom: 70px;
         left: 0;
-        width: 100%;
+        width: 80%;
         max-width: 100%;
         border-radius: 0;
     }
 
     .lobbyTitle {
         font-size: 22px;
+    }
+
+    .chatHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ebebeb;
+    }
+
+    .chatHeader h1 {
+        margin: 0;
+        border: none;
+        padding: 0;
+    }
+
+    .chatCloseBtn {
+        cursor: pointer;
     }
 }
