@@ -17,34 +17,23 @@ import styles from "../styles/videoComponent.module.css";
 import { AuthContext } from "../contexts/AuthContext";
 
 const server_url = import.meta.env.VITE_API_URL;
+const TURN_API = import.meta.env.VITE_TURN_API;
 
 var connections = {};
 
-const peerConfigConnection = {
-  iceServers: [
-    { urls: "stun:stun.l.google.com:19302" },
-    { urls: "stun:stun1.l.google.com:19302" },
-    {
-      urls: "turn:openrelay.metered.ca:80",
-      username: "openrelayproject",
-      credential: "openrelayproject",
-    },
-    {
-      urls: "turn:openrelay.metered.ca:80?transport=tcp",
-      username: "openrelayproject",
-      credential: "openrelayproject",
-    },
-    {
-      urls: "turn:openrelay.metered.ca:443",
-      username: "openrelayproject",
-      credential: "openrelayproject",
-    },
-    {
-      urls: "turns:openrelay.metered.ca:443?transport=tcp",
-      username: "openrelayproject",
-      credential: "openrelayproject",
-    },
-  ],
+var iceServersCache = null;
+const getIceServers = async () => {
+    if (iceServersCache) return iceServersCache;
+    try {
+        const response = await fetch(TURN_API);
+        const servers = await response.json();
+        iceServersCache = servers;
+        return servers;
+    } catch (e) {
+        console.log("Failed to fetch TURN credentials, using STUN fallback", e);
+        iceServersCache = [{ urls: "stun:stun.l.google.com:19302" }];
+        return iceServersCache;
+    }
 };
 
 export default function VideoMeeting() {
@@ -53,6 +42,7 @@ export default function VideoMeeting() {
   const [meetingChecked, setMeetingChecked] = useState(false);
   const [meetingValid, setMeetingValid] = useState(true);
   const { markMeetingStarted } = useContext(AuthContext);
+  const [iceServersReady, setIceServersReady] = useState(false);
 
   useEffect(() => {
     const verifyMeeting = async () => {
@@ -101,10 +91,15 @@ export default function VideoMeeting() {
   const videoRef = useRef([]);
   let [videos, setVideos] = useState([]);
   let [copied, setCopied] = useState(false);
+  
 
   useEffect(() => {
     getPermissions();
   }, []);
+
+  useEffect(() => {
+    getIceServers().then(() => setIceServersReady(true));
+}, []);
 
   let getDislayMedia = () => {
     if (screen) {
@@ -355,11 +350,14 @@ export default function VideoMeeting() {
         delete connections[id];
       });
 
-      socketRef.current.on("user-joined", (id, clients) => {
+      socketRef.current.on("user-joined", async (id, clients) => {
+        const iceServers = await getIceServers();
+
         clients.forEach((socketListId) => {
           if (connections[socketListId]) return; // already have this peer
 
-          connections[socketListId] = new RTCPeerConnection(peerConfigConnection);
+          connections[socketListId] = new RTCPeerConnection({ iceServers });
+
           connections[socketListId].oniceconnectionstatechange = () => {
             console.log(`[${socketListId}] iceConnectionState:`, connections[socketListId].iceConnectionState);
           };
@@ -374,7 +372,7 @@ export default function VideoMeeting() {
           };
 
           connections[socketListId].ontrack = (event) => {
-            console.log(`[${socketListId}] ontrack fired, kind:`, event.track.kind); // diagnostics
+            console.log(`[${socketListId}] ontrack fired, kind:`, event.track.kind);
             const incomingStream = event.streams[0];
             let videoExists = videoRef.current.find((video) => video.socketId === socketListId);
             if (videoExists) {
